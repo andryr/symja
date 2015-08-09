@@ -2,7 +2,7 @@ package org.matheclipse.core.reflection.system;
 
 import java.math.BigInteger;
 
-import org.apache.commons.math3.analysis.function.Subtract;
+import org.apache.commons.math4.analysis.function.Subtract;
 import org.matheclipse.core.eval.exception.Validate;
 import org.matheclipse.core.eval.interfaces.AbstractTrigArg1;
 import org.matheclipse.core.expression.F;
