@@ -28,6 +28,12 @@ public class Scanner {
 	protected String fInputString;
 
 	protected char fLastChar;
+	
+	/**
+	 * Recursion depth for brackets. 
+	 */
+	protected int fRecursionDepth;
+	
 	/**
 	 * Current input character
 	 */
@@ -455,6 +461,11 @@ public class Scanner {
 					fCurrentPosition++;
 					fCurrentPosition++;
 					level++;
+					continue;
+				} else if (fInputString.charAt(fCurrentPosition) == '\n') {
+					fCurrentPosition++;
+					rowCount++;
+					fCurrentColumnStartPosition = fCurrentPosition;
 					continue;
 				}
 				fCurrentPosition++;

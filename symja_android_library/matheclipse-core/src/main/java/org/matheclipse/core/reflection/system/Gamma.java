@@ -55,8 +55,11 @@ public class Gamma extends AbstractTrigArg1 {
 	@Override
 	public IExpr evaluateArg1(final IExpr arg1) {
 		if (arg1.isInteger()) {
-			BigInteger fac = gamma(((IInteger) arg1).getBigNumerator());
-			return F.integer(fac);
+			if (arg1.isPositive()) {
+				BigInteger fac = gamma(((IInteger) arg1).getBigNumerator());
+				return F.integer(fac);
+			}
+			return F.CComplexInfinity;
 		}
 		if (arg1.isFraction() && arg1.isPositive()) {
 			IFraction frac = (IFraction) arg1;
@@ -64,8 +67,15 @@ public class Gamma extends AbstractTrigArg1 {
 				IInteger n = frac.getNumerator();
 				// Sqrt(Pi) * (n-2)!! / 2^((n-1)/2)
 				return F.Times(F.Sqrt(F.Pi), F.Factorial2(n.subtract(F.C2)), F.Power(F.C2, F.Times(F.C1D2, F.Subtract(F.C1, n))));
-
 			}
+		} else if (arg1.isInfinity()) {
+			return F.CInfinity;
+		} else if (arg1.isNegativeInfinity()) {
+			return F.Indeterminate;
+		} else if (arg1.isComplexInfinity()) {
+			return F.Indeterminate;
+		} else if (arg1.equals(F.CIInfinity) || arg1.equals(F.CNIInfinity)) {
+			return F.C0;
 		}
 		return null;
 	}

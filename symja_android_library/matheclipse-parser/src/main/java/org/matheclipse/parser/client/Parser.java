@@ -202,7 +202,7 @@ public class Parser extends Scanner {
 			final int lookahead = fToken;
 			if ((fToken == TT_LIST_OPEN) || (fToken == TT_PRECEDENCE_OPEN) || (fToken == TT_IDENTIFIER) || (fToken == TT_STRING)
 					|| (fToken == TT_DIGIT)) {
-				if (fPackageMode && fToken == TT_IDENTIFIER && fLastChar == '\n') {
+				if (fPackageMode && fRecursionDepth <= 1) {
 					return rhs;
 				}
 				// lazy evaluation of multiplication
@@ -255,63 +255,71 @@ public class Parser extends Scanner {
 	 * @return
 	 */
 	private ASTNode parseOperators(ASTNode lhs, final int min_precedence) {
-		ASTNode rhs = null;
-		Operator oper;
-		InfixOperator infixOperator;
-		PostfixOperator postfixOperator;
-		while (true) {
-			if ((fToken == TT_LIST_OPEN) || (fToken == TT_PRECEDENCE_OPEN) || (fToken == TT_IDENTIFIER) || (fToken == TT_STRING)
-					|| (fToken == TT_DIGIT)) {
-				if (fPackageMode && fToken == TT_IDENTIFIER && fLastChar == '\n') {
-					return lhs;
-				}
-				// lazy evaluation of multiplication
-				oper = fFactory.get("Times");
-				if (oper.getPrecedence() >= min_precedence) {
-					rhs = parseLookaheadOperator(oper.getPrecedence());
-					lhs = fFactory.createFunction(fFactory.createSymbol(oper.getFunctionName()), lhs, rhs);
-//					lhs = parseArguments(lhs);
-					continue;
-				}
-			} else {
-				if (fToken != TT_OPERATOR) {
-					if (fToken == TT_DERIVATIVE) {
-						getNextToken();
-						lhs = fFactory.createFunction(DERIVATIVE, lhs);
-						// lhs = postfixOperator.createFunction(fFactory, lhs);
-						lhs = parseArguments(lhs);
-						continue;
+		fRecursionDepth++;
+		try {
+			ASTNode rhs = null;
+			Operator oper;
+			InfixOperator infixOperator;
+			PostfixOperator postfixOperator;
+			while (true) {
+				if ((fToken == TT_LIST_OPEN) || (fToken == TT_PRECEDENCE_OPEN) || (fToken == TT_IDENTIFIER)
+						|| (fToken == TT_STRING) || (fToken == TT_DIGIT)) {
+					if (fPackageMode && fRecursionDepth <= 1) {
+						return lhs;
 					}
-					break;
-				}
-				infixOperator = determineBinaryOperator();
-
-				if (infixOperator != null) {
-					if (infixOperator.getPrecedence() >= min_precedence) {
-						getNextToken();
-						rhs = parseLookaheadOperator(infixOperator.getPrecedence());
-						lhs = infixOperator.createFunction(fFactory, lhs, rhs);
-//						lhs = parseArguments(lhs);
+					// if (fPackageMode && fToken == TT_IDENTIFIER && fLastChar == '\n') {
+					// return lhs;
+					// }
+					// lazy evaluation of multiplication
+					oper = fFactory.get("Times");
+					if (oper.getPrecedence() >= min_precedence) {
+						rhs = parseLookaheadOperator(oper.getPrecedence());
+						lhs = fFactory.createFunction(fFactory.createSymbol(oper.getFunctionName()), lhs, rhs);
+						// lhs = parseArguments(lhs);
 						continue;
 					}
 				} else {
-					postfixOperator = determinePostfixOperator();
-
-					if (postfixOperator != null) {
-						if (postfixOperator.getPrecedence() >= min_precedence) {
+					if (fToken != TT_OPERATOR) {
+						if (fToken == TT_DERIVATIVE) {
 							getNextToken();
-							lhs = postfixOperator.createFunction(fFactory, lhs);
+							lhs = fFactory.createFunction(DERIVATIVE, lhs);
+							// lhs = postfixOperator.createFunction(fFactory, lhs);
 							lhs = parseArguments(lhs);
 							continue;
 						}
+						break;
+					}
+					infixOperator = determineBinaryOperator();
+
+					if (infixOperator != null) {
+						if (infixOperator.getPrecedence() >= min_precedence) {
+							getNextToken();
+							rhs = parseLookaheadOperator(infixOperator.getPrecedence());
+							lhs = infixOperator.createFunction(fFactory, lhs, rhs);
+							// lhs = parseArguments(lhs);
+							continue;
+						}
 					} else {
-						throwSyntaxError("Operator: " + fOperatorString + " is no infix or postfix operator.");
+						postfixOperator = determinePostfixOperator();
+
+						if (postfixOperator != null) {
+							if (postfixOperator.getPrecedence() >= min_precedence) {
+								getNextToken();
+								lhs = postfixOperator.createFunction(fFactory, lhs);
+								lhs = parseArguments(lhs);
+								continue;
+							}
+						} else {
+							throwSyntaxError("Operator: " + fOperatorString + " is no infix or postfix operator.");
+						}
 					}
 				}
+				break;
 			}
-			break;
+			return lhs;
+		} finally {
+			fRecursionDepth--;
 		}
-		return lhs;
 	}
 
 	/**
@@ -342,7 +350,7 @@ public class Parser extends Scanner {
 		return temp;
 	}
 
-	public List<ASTNode> parseList(final String expression) throws SyntaxError {
+	public List<ASTNode> parsePackage(final String expression) throws SyntaxError {
 		initialize(expression);
 		ASTNode temp = parseOperators(parsePrimary(), 0);
 		fNodeList.add(temp);
@@ -448,12 +456,17 @@ public class Parser extends Scanner {
 			return function;
 		}
 
-		getArguments(function);
+		fRecursionDepth++;
+		try {
+			getArguments(function);
 
-		if (fToken == TT_LIST_CLOSE) {
-			getNextToken();
+			if (fToken == TT_LIST_CLOSE) {
+				getNextToken();
 
-			return function;
+				return function;
+			}
+		} finally {
+			fRecursionDepth--;
 		}
 
 		throwSyntaxError("'}' expected.");
@@ -466,58 +479,62 @@ public class Parser extends Scanner {
 	 */
 	FunctionNode getFunction(final ASTNode head) throws SyntaxError {
 		final FunctionNode function = fFactory.createAST(head);
+		fRecursionDepth++;
+		try {
+			getNextToken();
 
-		getNextToken();
-
-		if (fRelaxedSyntax) {
-			if (fToken == TT_PRECEDENCE_CLOSE) {
-				getNextToken();
-				if (fToken == TT_PRECEDENCE_OPEN) {
+			if (fRelaxedSyntax) {
+				if (fToken == TT_PRECEDENCE_CLOSE) {
+					getNextToken();
+					if (fToken == TT_PRECEDENCE_OPEN) {
+						return function;
+					}
+					if (fToken == TT_ARGUMENTS_OPEN) {
+						return getFunctionArguments(function);
+					}
 					return function;
 				}
-				if (fToken == TT_ARGUMENTS_OPEN) {
-					return getFunctionArguments(function);
-				}
-				return function;
-			}
-		} else {
-			if (fToken == TT_ARGUMENTS_CLOSE) {
-				getNextToken();
-				if (fToken == TT_ARGUMENTS_OPEN) {
-					return getFunctionArguments(function);
-				}
-				return function;
-			}
-		}
-		getArguments(function);
-
-		if (fRelaxedSyntax) {
-			if (fToken == TT_PRECEDENCE_CLOSE) {
-				getNextToken();
-				if (fToken == TT_PRECEDENCE_OPEN) {
+			} else {
+				if (fToken == TT_ARGUMENTS_CLOSE) {
+					getNextToken();
+					if (fToken == TT_ARGUMENTS_OPEN) {
+						return getFunctionArguments(function);
+					}
 					return function;
 				}
-				if (fToken == TT_ARGUMENTS_OPEN) {
-					return getFunctionArguments(function);
-				}
-				return function;
 			}
-		} else {
-			if (fToken == TT_ARGUMENTS_CLOSE) {
-				getNextToken();
-				if (fToken == TT_ARGUMENTS_OPEN) {
-					return getFunctionArguments(function);
-				}
-				return function;
-			}
-		}
+			getArguments(function);
 
-		if (fRelaxedSyntax) {
-			throwSyntaxError("')' expected.");
-		} else {
-			throwSyntaxError("']' expected.");
+			if (fRelaxedSyntax) {
+				if (fToken == TT_PRECEDENCE_CLOSE) {
+					getNextToken();
+					if (fToken == TT_PRECEDENCE_OPEN) {
+						return function;
+					}
+					if (fToken == TT_ARGUMENTS_OPEN) {
+						return getFunctionArguments(function);
+					}
+					return function;
+				}
+			} else {
+				if (fToken == TT_ARGUMENTS_CLOSE) {
+					getNextToken();
+					if (fToken == TT_ARGUMENTS_OPEN) {
+						return getFunctionArguments(function);
+					}
+					return function;
+				}
+			}
+
+			if (fRelaxedSyntax) {
+				throwSyntaxError("')' expected.");
+			} else {
+				throwSyntaxError("']' expected.");
+			}
+			return null;
+		} finally {
+			fRecursionDepth--;
 		}
-		return null;
 	}
 
 	/**
@@ -525,30 +542,35 @@ public class Parser extends Scanner {
 	 * 
 	 */
 	FunctionNode getFunctionArguments(final ASTNode head) throws SyntaxError {
-		final FunctionNode function = fFactory.createAST(head);
+		fRecursionDepth++;
+		try {
+			final FunctionNode function = fFactory.createAST(head);
 
-		getNextToken();
-
-		if (fToken == TT_ARGUMENTS_CLOSE) {
 			getNextToken();
-			if (fToken == TT_ARGUMENTS_OPEN) {
-				return getFunctionArguments(function);
+
+			if (fToken == TT_ARGUMENTS_CLOSE) {
+				getNextToken();
+				if (fToken == TT_ARGUMENTS_OPEN) {
+					return getFunctionArguments(function);
+				}
+				return function;
 			}
-			return function;
-		}
 
-		getArguments(function);
+			getArguments(function);
 
-		if (fToken == TT_ARGUMENTS_CLOSE) {
-			getNextToken();
-			if (fToken == TT_ARGUMENTS_OPEN) {
-				return getFunctionArguments(function);
+			if (fToken == TT_ARGUMENTS_CLOSE) {
+				getNextToken();
+				if (fToken == TT_ARGUMENTS_OPEN) {
+					return getFunctionArguments(function);
+				}
+				return function;
 			}
-			return function;
-		}
 
-		throwSyntaxError("']' expected.");
-		return null;
+			throwSyntaxError("']' expected.");
+			return null;
+		} finally {
+			fRecursionDepth--;
+		}
 	}
 
 	private ASTNode getFactor() throws SyntaxError {
@@ -730,49 +752,51 @@ public class Parser extends Scanner {
 	 * 
 	 */
 	private ASTNode getPart() throws SyntaxError {
-		ASTNode temp = getFactor();
-//		temp = parseArguments(temp);
+		ASTNode temp = getFactor(); 
 
 		if (fToken != TT_PARTOPEN) {
 			return temp;
 		}
 
-		FunctionNode function = null;
-
-		do {
-			if (function == null) {
-				function = fFactory.createFunction(fFactory.createSymbol(IConstantOperators.Part), temp);
-			} else {
-				function = fFactory.createFunction(fFactory.createSymbol(IConstantOperators.Part), function);
-			}
+		fRecursionDepth++;
+		try {
+			FunctionNode function = null;
 			do {
-				getNextToken();
-
-				if (fToken == TT_PARTCLOSE) {
-					throwSyntaxError("Statement (i.e. index) expected in [[ ]].");
+				if (function == null) {
+					function = fFactory.createFunction(fFactory.createSymbol(IConstantOperators.Part), temp);
+				} else {
+					function = fFactory.createFunction(fFactory.createSymbol(IConstantOperators.Part), function);
 				}
+				do {
+					getNextToken();
 
-				function.add(parseOperators(parsePrimary(), 0));
-			} while (fToken == TT_COMMA);
-
-			if (fToken == TT_ARGUMENTS_CLOSE) {
-				// scanner-step begin: (instead of getNextToken() call):
-				if (fInputString.length() > fCurrentPosition) {
-					if (fInputString.charAt(fCurrentPosition) == ']') {
-						fCurrentPosition++;
-						fToken = TT_PARTCLOSE;
+					if (fToken == TT_PARTCLOSE) {
+						throwSyntaxError("Statement (i.e. index) expected in [[ ]].");
 					}
+
+					function.add(parseOperators(parsePrimary(), 0));
+				} while (fToken == TT_COMMA);
+
+				if (fToken == TT_ARGUMENTS_CLOSE) {
+					// scanner-step begin: (instead of getNextToken() call):
+					if (fInputString.length() > fCurrentPosition) {
+						if (fInputString.charAt(fCurrentPosition) == ']') {
+							fCurrentPosition++;
+							fToken = TT_PARTCLOSE;
+						}
+					}
+					// scanner-step end
 				}
-				// scanner-step end
-			}
-			if (fToken != TT_PARTCLOSE) {
-				throwSyntaxError("']]' expected.");
-			}
-			// }
-			getNextToken();
-		} while (fToken == TT_PARTOPEN);
+				if (fToken != TT_PARTCLOSE) {
+					throwSyntaxError("']]' expected.");
+				}
+				// }
+				getNextToken();
+			} while (fToken == TT_PARTOPEN);
 
-		return parseArguments(function);
+			return parseArguments(function);
+		} finally {
+			fRecursionDepth--;
+		}
 	}
-
 }

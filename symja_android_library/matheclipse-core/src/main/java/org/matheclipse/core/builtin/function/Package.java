@@ -195,7 +195,16 @@ public class Package implements IFunctionEvaluator {
 				builder.append(record);
 				builder.append('\n');
 			}
-
+//
+//			List<IExpr> parsedExpression = engine.parsePackage(builder.toString());
+//			if (parsedExpression != null) {
+//				for (int i = 0; i < parsedExpression.size(); i++) {
+//					System.out.println(parsedExpression.get(i).fullFormString());
+//					System.out.println();
+//				}
+//			 
+//			}
+			
 			IExpr parsedExpression = engine.parse(builder.toString());
 			if (parsedExpression != null && parsedExpression.isAST()) {
 				IAST ast = (IAST) parsedExpression;

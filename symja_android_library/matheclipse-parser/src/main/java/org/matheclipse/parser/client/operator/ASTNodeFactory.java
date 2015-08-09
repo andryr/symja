@@ -41,28 +41,31 @@ public class ASTNodeFactory implements IParserFactory {
 	public final static int TIMES_PRECEDENCE = 3800;
 
 	public final static int DIVIDE_PRECEDENCE = 4500;
-	
+
 	public final static int POWER_PRECEDENCE = 5700;
 
-	static final String[] HEADER_STRINGS = { "MapAll", "TimesBy", "Plus", "UpSet", "CompoundExpression", "Map", "Unset", "Apply",
-			"ReplaceRepeated", "Less", "And", "Divide", "Set", "Increment", "Factorial2", "LessEqual", "NonCommutativeMultiply",
-			"Factorial", "Times", "Power", "Dot", "Not", "PreMinus", "SameQ", "RuleDelayed", "GreaterEqual", "Condition", "Colon",
-			"DivideBy", "Or", "Equal", "StringJoin", "Unequal", "Decrement", "SubtractFrom", "PrePlus",
+	static final String[] HEADER_STRINGS = { "MessageName", "Get", "MapAll", "TimesBy", "Plus", "UpSet", "CompoundExpression",
+			"Map", "Unset", "Apply", "ReplaceRepeated", "Less", "And", "Divide", "Set", "Increment", "Factorial2", "LessEqual",
+			"NonCommutativeMultiply", "Factorial", "Times", "Power", "Dot", "Not", "PreMinus", "SameQ", "RuleDelayed",
+			"GreaterEqual", "Condition", "Colon", "DivideBy", "Or", "Equal", "StringJoin", "Unequal", "Decrement", "SubtractFrom",
+			"PrePlus",
 			// "RepeatedNull",
 			"UnsameQ", "Rule", "UpSetDelayed", "PreIncrement", "Function", "Greater", "PreDecrement", "Subtract", "SetDelayed",
 			"Alternatives", "AddTo",
 			// "Repeated",
 			"ReplaceAll" };
 
-	static final String[] OPERATOR_STRINGS = { "//@", "*=", "+", "^=", ";", "/@", "=.", "@@", "//.", "<", "&&", "/", "=", "++",
-			"!!", "<=", "**", "!", "*", "^", ".", "!", "-", "===", ":>", ">=", "/;", ":", "/=", "||", "==", "<>", "!=", "--", "-=",
-			"+",
+	static final String[] OPERATOR_STRINGS = { "::", "<<", "//@", "*=", "+", "^=", ";", "/@", "=.", "@@", "//.", "<", "&&", "/",
+			"=", "++", "!!", "<=", "**", "!", "*", "^", ".", "!", "-", "===", ":>", ">=", "/;", ":", "/=", "||", "==", "<>", "!=",
+			"--", "-=", "+",
 			// "...",
 			"=!=", "->", "^:=", "++", "&", ">", "--", "-", ":=", "|", "+=",
 			// "..",
 			"/." };
 
-	static final Operator[] OPERATORS = { new InfixOperator("//@", "MapAll", 6100, InfixOperator.RIGHT_ASSOCIATIVE),
+	static final Operator[] OPERATORS = { new InfixOperator("::", "MessageName", 7400, InfixOperator.NONE),
+		    new PrefixOperator("<<", "Get", 7000),
+			new InfixOperator("//@", "MapAll", 6100, InfixOperator.RIGHT_ASSOCIATIVE),
 			new InfixOperator("*=", "TimesBy", 900, InfixOperator.NONE),
 			new InfixOperator("+", "Plus", PLUS_PRECEDENCE, InfixOperator.NONE),
 			new InfixOperator("^=", "UpSet", 300, InfixOperator.NONE),
