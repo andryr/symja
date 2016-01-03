@@ -1,0 +1,30 @@
+<html>
+<body>
+This package provides a comprehensive library for complex numbers and
+quaternions. The underlying ideas are the following:
+<p>
+Method names refer to the action performed:
+For instances <code>a,b</code> of class {@link mfc.number.Complex}, 
+<code>a.plus(b)</code> produces a new instance of containing the sum 
+<code>a+b</code>.
+<p>
+<code>Assign</code>-methods do NOT create new instances:
+For instances <code>a,b</code> of class Complex,
+<code>a.assignPlus(a,b)</code> stores the sum <code>a+b</code> 
+in <code>a</code>. <code>a.assignPlus(b)</code> stores the sum 
+<code>a+b</code> in <code>a</code>, like the operator 
+<code>"+="</code> does for simple types.
+<p>
+All non-commutatitve operations (for instances of 
+{@link mfc.number.Quaternion}) are RIGHT OPERATIONS !
+For instances <code>a,b</code> of class {@link mfc.number.Quaternion},
+<code>a.assignTimes(b)</code> stores the product <code>a*b</code> 
+in <code>a</code>. To store <code>b*a</code> in <code>a</code>, 
+you would have to call <code>a.assignTimes(b,a)</code>.
+
+Instances interact with doubles
+For an instance <code>a</code> and a double <code>r</code>,
+<code>a.times(r)</code> creates a new instance containing the 
+product <code>a*r</code.
+</body>
+</html>

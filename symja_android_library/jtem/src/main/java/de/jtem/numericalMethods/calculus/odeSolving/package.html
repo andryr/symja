@@ -1,0 +1,16 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <body>
+    Algorithms for solving <em>ordinary differential equations</em>.
+    <pre>
+    You define an ode using via the interface {@link ODE}.
+    <pre>
+    Currently we have provide implementations for 3 adaptive
+    ode solvers: {@link RungeKuttaFehlberg},{@link BulirschStoer}, and {@link Extrap}.
+    {@link Extrap} is the most sufisticated and allways worked best for us.
+    For situations where performance rules over accuracy we implemented also a
+    simple {@link RungeKutta} method.
+    <pre>
+    Have a look at {@link ExampleODE} to learn more about how you define
+    ode's and solve them using this package.
+</body> </html>
