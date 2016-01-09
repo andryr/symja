@@ -50,12 +50,8 @@
   
 	<target name="jar" description="Create full &quot;/build/jar/symja-YYYY-MM-DD.jar&quot; file for download" depends="doc">
 		<mkdir dir="${jar.dir}"/>
-<!--		<unjar src="lib/jsr305.jar" dest="${classes.dir}">
-		  <patternset>
-            <exclude name="**/*.java"/>
-          </patternset>
-		</unjar>
-		<unjar src="lib/guava-11.0.jar" dest="${classes.dir}"> 
+		<!-- 
+		<unjar src="lib/jsr305.jar" dest="${classes.dir}">
 		  <patternset>
             <exclude name="**/*.java"/>
           </patternset>
@@ -72,6 +68,18 @@
             <exclude name="**/*.gif"/>
           </patternset>
 		</unjar>
+		<unjar src="lib/COMMONS_MATH4_SYMJA.jar " dest="${classes.dir}"> 
+		  <patternset>
+            <exclude name="**/*.java"/>
+            <exclude name="**/*.gif"/>
+          </patternset>
+		</unjar>
+		<unjar src="lib/guava-11.0.jar" dest="${classes.dir}"> 
+		  <patternset>
+            <exclude name="**/*.java"/>
+          </patternset>
+		</unjar>
+		
 		<unjar src="lib/junit-4.6.jar " dest="${classes.dir}"> 
 		  <patternset>
             <exclude name="**/*.java"/>
