@@ -21,8 +21,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 
+import org.matheclipse.core.basic.Config;
 import org.matheclipse.parser.client.Parser;
 import org.matheclipse.parser.client.ast.ASTNode;
 import org.matheclipse.parser.client.ast.FunctionNode;
@@ -217,7 +217,7 @@ public class Console {
 
 	public String readString(final PrintStream out) {
 		final StringBuffer input = new StringBuffer();
-		final BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+		final BufferedReader in = new BufferedReader(new InputStreamReader(System.in, Config.UTF_8));
 		boolean done = false;
 
 		try {

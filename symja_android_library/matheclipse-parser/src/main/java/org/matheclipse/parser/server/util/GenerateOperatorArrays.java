@@ -21,13 +21,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
+import org.matheclipse.core.basic.Config;
 import org.matheclipse.parser.client.operator.ASTNodeFactory;
 import org.matheclipse.parser.client.operator.DivideOperator;
 import org.matheclipse.parser.client.operator.InfixOperator;
@@ -158,7 +158,7 @@ public class GenerateOperatorArrays {
 
 	public static void generateOperatorTable(final InputStream is, final HashMap operatorMap, final HashMap operatorTokenStartSet) {
 		String record = null;
-		final BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+		final BufferedReader r = new BufferedReader(new InputStreamReader(is, Config.UTF_8));
 
 		StringTokenizer tokenizer;
 		Operator oper = null;

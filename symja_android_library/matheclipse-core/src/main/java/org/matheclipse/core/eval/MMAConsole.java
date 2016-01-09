@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 import org.matheclipse.core.basic.Config;
@@ -248,7 +247,7 @@ public class MMAConsole {
 
 	public String readString(final PrintStream out) {
 		final StringBuffer input = new StringBuffer();
-		final BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+		final BufferedReader in = new BufferedReader(new InputStreamReader(System.in, Config.UTF_8));
 		boolean done = false;
 
 		try {

@@ -1,5 +1,6 @@
 package org.matheclipse.core.basic;
 
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,7 +11,7 @@ import org.matheclipse.core.interfaces.ISymbol;
  * General configuration settings.
  */
 public class Config {
-
+	public static final Charset UTF_8 = Charset.forName("UTF-8");
 	/**
 	 * COMPILER switch - set this boolean variable to <code>true</code>, if you would force a direct plot frame creation from the
 	 * Plot[], Plot3D[] and ParametricPlot[] functions
