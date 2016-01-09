@@ -14,6 +14,9 @@ public class AllEvalTests extends TestCase {
 
 		s.addTestSuite(EvalComplexTestCase.class);
 		s.addTestSuite(EvalDoubleTestCase.class);
+		s.addTestSuite(EvalDoubleRelaxedTestCase.class);
+		s.addTestSuite(EvalComplexRelaxedTestCase.class);
+		s.addTestSuite(EvalDfpRelaxedTestCase.class);
 		return s;
 	}
 

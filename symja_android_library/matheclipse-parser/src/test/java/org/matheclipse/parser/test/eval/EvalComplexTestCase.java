@@ -2,7 +2,6 @@ package org.matheclipse.parser.test.eval;
 
 import junit.framework.TestCase;
 
-import org.junit.Assert;
 import org.matheclipse.parser.client.Parser;
 import org.matheclipse.parser.client.ast.ASTNode;
 import org.matheclipse.parser.client.ast.FunctionNode;
@@ -13,7 +12,7 @@ import org.matheclipse.parser.client.math.Complex;
 
 /**
  * Tests evaluation in <code>Complex</code> expression mode
- * 
+ *  
  * @see org.matheclipse.parser.client.math.Complex
  */
 public class EvalComplexTestCase extends TestCase {
@@ -69,7 +68,7 @@ public class EvalComplexTestCase extends TestCase {
 		check("1+2+3+4*7*3", "90.0");
 		// calculate in Radians
 		check("Sin[Cos[3.2]]", "-0.8405484252742996");
-		check("Sin[Cos[3.2]*I]", "-0.0+I*(-1.1725716025387687)");
+		check("Sin[Cos[3.2]*I]", "-0.0+I*(-1.172571602538769)");
 		// Pi / 2
 		check("90.0*Degree", "1.5707963267948966");
 		check("Pi/2", "1.5707963267948966");
@@ -119,15 +118,15 @@ public class EvalComplexTestCase extends TestCase {
 			BooleanVariable vb2 = new BooleanVariable(true);
 			engine.defineVariable("$2", vb2);
 			Complex cmp = engine.evaluate("If[$1 && $2, 1, 0]");
-			Assert.assertEquals(ComplexEvaluator.toString(cmp), "1.0");
+			assertEquals(ComplexEvaluator.toString(cmp), "1.0");
 			vb.setValue(false);
 			cmp = engine.evaluate();
-			Assert.assertEquals(ComplexEvaluator.toString(cmp), "0.0");
+			assertEquals(ComplexEvaluator.toString(cmp), "0.0");
 		} catch (Exception e) {
 			e.printStackTrace();
-			Assert.assertEquals("", e.getMessage());
+			assertEquals("", e.getMessage());
 		}
-	}
+	} 
 
 	public void testEval007() {
 		try {
@@ -138,13 +137,25 @@ public class EvalComplexTestCase extends TestCase {
 			ComplexVariable vc2 = new ComplexVariable(-4.0);
 			engine.defineVariable("$2", vc2);
 			Complex cmp = engine.evaluate("$i = $1+$2; If[$i==0, 1, -1]");
-			Assert.assertEquals(ComplexEvaluator.toString(cmp), "-1.0");
+			assertEquals(ComplexEvaluator.toString(cmp), "-1.0");
 			vc2.setValue(-3.0);
 			cmp = engine.evaluate();
-			Assert.assertEquals(ComplexEvaluator.toString(cmp), "1.0");
+			assertEquals(ComplexEvaluator.toString(cmp), "1.0");
 		} catch (Exception e) {
 			e.printStackTrace();
-			Assert.assertEquals("", e.getMessage());
+			assertEquals("", e.getMessage());
+		}
+	}
+	
+	public void testEval010() {
+		try {
+			ComplexEvaluator engine = new ComplexEvaluator();
+			engine.defineVariable("x", new ComplexVariable(Complex.I)); 
+			Complex c = engine.evaluate("Abs[x]");
+			assertEquals(ComplexEvaluator.toString(c), "1.0");
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertEquals("", e.getMessage());
 		}
 	}
 }
