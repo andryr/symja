@@ -104,6 +104,7 @@ public class PartialFractionIntegrateGenerator implements IPartialFractionGenera
 						}
 					}
 				} else {
+					// (B*A*x) / (q*p*x)
 					isQuadratic(genPolynomial, numer);
 					IFraction A = F.fraction(numer[1].numerator(), numer[1].denominator());
 					IFraction B = F.fraction(numer[0].numerator(), numer[0].denominator());
@@ -112,7 +113,11 @@ public class PartialFractionIntegrateGenerator implements IPartialFractionGenera
 					IFraction q = F.fraction(denom[0].numerator(), denom[0].denominator());
 					if (A.isZero() && !p.isZero()) {
 						// JavaForm[B*Log[p*x+q]/p]
-						temp = Times(B, Log(Plus(q, Times(p, x))), Power(p, CN1));
+						if (q.isNegative()) {
+							temp = Times(B, Log(Plus(q.negate(), Times(p.negate(), x))), Power(p, CN1));
+						} else {
+							temp = Times(B, Log(Plus(q, Times(p, x))), Power(p, CN1));
+						}
 					} else {
 						// JavaForm[A/2*Log[x^2+p*x+q]+(2*B-A*p)/(4*q-p^2)^(1/2)*ArcTan[(2*x+p)/(4*q-p^2)^(1/2)]]
 						temp = Plus(
